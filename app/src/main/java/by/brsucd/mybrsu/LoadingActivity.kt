@@ -29,7 +29,7 @@ class LoadingActivity : ComponentActivity() {
     }
 
     @Composable
-    fun loadingText(text : String, modifier: Modifier){
+    fun LoadingText(text : String, modifier: Modifier){
         Text(text = text, modifier = modifier)
         
     }
@@ -37,7 +37,7 @@ class LoadingActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun Loading(){
-        loadingText(text ="MyBRSU", modifier = Modifier)
+        LoadingText(text ="MyBRSU", modifier = Modifier)
     }
 
 

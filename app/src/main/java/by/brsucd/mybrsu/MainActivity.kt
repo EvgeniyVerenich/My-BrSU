@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MovableContent
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,10 +49,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -66,6 +65,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import by.brsucd.mybrsu.dbproperties.FirebaseProp
 
 @ExperimentalMaterial3Api
 class MainActivity : ComponentActivity() {
@@ -155,7 +155,7 @@ fun NewsListItem(topic: String, navController: NavController, text: String){
             defaultElevation = 10.dp
         ),
         onClick = {
-            navController.navigate("topics/?title=$topic&mainText=$text&resource=home")
+            navController.navigate("topics/?title=$topic&mainText=&resource=home")
         }
     ) {
         Box {
@@ -381,7 +381,6 @@ fun AppHeader(title: String){
 }
 
 @ExperimentalMaterial3Api
-@Preview(showBackground = true)
 @Composable
 fun TimeTable(){
     val expendedCourse = remember {
@@ -538,6 +537,7 @@ fun StructureActivity(navController: NavController){
 }
 
 @Composable
+@Preview(showBackground = true)
 fun StructureItem(){
     Column(
         modifier = Modifier
@@ -568,21 +568,104 @@ fun StructureItem(){
                     modifier = Modifier.size(100.dp, 150.dp),
                     elevation = CardDefaults.cardElevation(10.dp)
                 ) {
-                    Image(painter = painterResource(id = R.drawable.univer2), contentDescription = "")
+                    Image(
+                        painter = painterResource(id = R.drawable.univer2),
+                        contentDescription = ""
+                    )
                     Text(text = "физико-математический")
                 }
                 Card(
                     modifier = Modifier.size(100.dp, 150.dp),
                     elevation = CardDefaults.cardElevation(10.dp)
                 ) {
-                    Image(painter = painterResource(id = R.drawable.univer2), contentDescription = "")
+                    Image(
+                        painter = painterResource(id = R.drawable.univer2),
+                        contentDescription = ""
+                    )
                     Text(text = "физико-математический")
                 }
                 Card(
                     modifier = Modifier.size(100.dp, 150.dp),
                     elevation = CardDefaults.cardElevation(10.dp)
                 ) {
-                    Image(painter = painterResource(id = R.drawable.univer2), contentDescription = "")
+                    Image(
+                        painter = painterResource(id = R.drawable.univer2),
+                        contentDescription = ""
+                    )
+                    Text(text = "физико-математический")
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Card(
+                    modifier = Modifier.size(100.dp, 150.dp),
+                    elevation = CardDefaults.cardElevation(10.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.univer2),
+                        contentDescription = ""
+                    )
+                    Text(text = "физико-математический")
+                }
+                Card(
+                    modifier = Modifier.size(100.dp, 150.dp),
+                    elevation = CardDefaults.cardElevation(10.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.univer2),
+                        contentDescription = ""
+                    )
+                    Text(text = "физико-математический")
+                }
+                Card(
+                    modifier = Modifier.size(100.dp, 150.dp),
+                    elevation = CardDefaults.cardElevation(10.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.univer2),
+                        contentDescription = ""
+                    )
+                    Text(text = "физико-математический")
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Card(
+                    modifier = Modifier.size(100.dp, 150.dp),
+                    elevation = CardDefaults.cardElevation(10.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.univer2),
+                        contentDescription = ""
+                    )
+                    Text(text = "физико-математический")
+                }
+                Card(
+                    modifier = Modifier.size(100.dp, 150.dp),
+                    elevation = CardDefaults.cardElevation(10.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.univer2),
+                        contentDescription = ""
+                    )
+                    Text(text = "физико-математический")
+                }
+                Card(
+                    modifier = Modifier.size(100.dp, 150.dp),
+                    elevation = CardDefaults.cardElevation(10.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.univer2),
+                        contentDescription = ""
+                    )
                     Text(text = "физико-математический")
                 }
             }
@@ -593,12 +676,16 @@ fun StructureItem(){
 @Composable
 fun ShowTopics(title: String, mainText: String){
     Column(
-        modifier = Modifier.fillMaxSize().padding(10.dp, top = 55.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp, top = 55.dp)
     ) {
         Image(
             painter = painterResource(id = R.drawable.univer2),
             contentDescription = "image topic",
-            modifier = Modifier.padding(bottom = 10.dp).clip(RoundedCornerShape(15.dp)))
+            modifier = Modifier
+                .padding(bottom = 10.dp)
+                .clip(RoundedCornerShape(15.dp)))
         Text(text = title, style = TextStyle(fontSize = 25.sp, fontWeight = FontWeight.Bold))
         Text(text = mainText, style = TextStyle(fontSize = 20.sp))
     }
@@ -617,8 +704,11 @@ fun TopicsActivity(navController: NavController, title: String,
                          navController.navigate(resource){
                              popUpTo(resource)
                          }
-                     }, modifier = Modifier.size(50.dp).background(
-                         Color(230, 238, 250))) {
+                     }, modifier = Modifier
+                         .size(50.dp)
+                         .background(
+                             Color(230, 238, 250)
+                         )) {
                          Icon(Icons.Outlined.ArrowBack, contentDescription = "goBack")
                      }
                      AppHeader(header)

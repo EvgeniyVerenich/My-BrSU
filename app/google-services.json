@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "964416966895",
+    "project_id": "my-brsu",
+    "storage_bucket": "my-brsu.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964416966895:android:21ad23ef124bcb0dce0b1a",
+        "android_client_info": {
+          "package_name": "by.brsucd.mybrsu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3P7qZOXaCHNpvAWrtzlGrwt8GdsuYAKw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
