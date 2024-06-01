@@ -1,7 +1,11 @@
 package by.brsucd.mybrsu
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
+import android.content.ContentValues.TAG
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -41,8 +45,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MovableContent
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +62,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,7 +72,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import by.brsucd.mybrsu.dbproperties.FeedReaderContract
+import by.brsucd.mybrsu.dbproperties.FeedReaderDbHelper
 import by.brsucd.mybrsu.dbproperties.FirebaseProp
+import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
 
 @ExperimentalMaterial3Api
 class MainActivity : ComponentActivity() {
@@ -532,13 +547,38 @@ fun StructureActivity(navController: NavController){
             )
         }
     ){
-        StructureItem()
+        StructureItem(navController)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InfoCard(mainText: String, imgId: Int, navController: NavController){
+    Card(
+        modifier = Modifier.size(100.dp, 150.dp),
+        elevation = CardDefaults.cardElevation(10.dp),
+        onClick = {
+            navController.navigate("topics/?title=$mainText&mainText=text&resource=structure")
+        }
+    ) {
+        Image(
+            modifier = Modifier
+                .fillMaxWidth()
+                .size(80.dp, 80.dp)
+                .padding(10.dp),
+            alignment = Alignment.Center,
+            painter = painterResource(id = imgId),
+            contentDescription = ""
+        )
+        Text(modifier = Modifier.padding(1.dp).fillMaxWidth(), text = mainText, style = TextStyle(textAlign = TextAlign.Center))
     }
 }
 
 @Composable
-@Preview(showBackground = true)
-fun StructureItem(){
+fun StructureItem(navController: NavController){
+    var showFaculties by remember {
+        mutableStateOf(true)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -550,125 +590,58 @@ fun StructureItem(){
                 .padding(5.dp),
             horizontalArrangement = Arrangement.Start
         ) {
-            Button(onClick = { /*TODO*/ }, modifier = Modifier.padding(5.dp)) {
+            Button(onClick = { showFaculties = true }, modifier = Modifier.padding(5.dp)) {
                 Text(text = "факультеты")
             }
-            Button(onClick = { /*TODO*/ }, modifier = Modifier.padding(5.dp)) {
+            Button(onClick = { showFaculties = false}, modifier = Modifier.padding(5.dp)) {
                 Text(text = "организации")
             }
         }
         Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Card(
-                    modifier = Modifier.size(100.dp, 150.dp),
-                    elevation = CardDefaults.cardElevation(10.dp)
+            if (showFaculties){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.univer2),
-                        contentDescription = ""
-                    )
-                    Text(text = "физико-математический")
+                    InfoCard(mainText = "Физико-математический факультет", imgId = R.drawable.physm, navController)
+                    InfoCard(mainText = "Юридический факультет", imgId = R.drawable.law, navController)
+                    InfoCard(mainText = "Факультет естествознания", imgId = R.drawable.natsci, navController)
                 }
-                Card(
-                    modifier = Modifier.size(100.dp, 150.dp),
-                    elevation = CardDefaults.cardElevation(10.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.univer2),
-                        contentDescription = ""
-                    )
-                    Text(text = "физико-математический")
+                    InfoCard(mainText = "Исторический факультет", imgId = R.drawable.hist, navController)
+                    InfoCard(mainText = "Социально-педагогический факультет", imgId = R.drawable.socp, navController)
+                    InfoCard(mainText = "Факультет иностранных языков", imgId = R.drawable.language, navController)
                 }
-                Card(
-                    modifier = Modifier.size(100.dp, 150.dp),
-                    elevation = CardDefaults.cardElevation(10.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.univer2),
-                        contentDescription = ""
-                    )
-                    Text(text = "физико-математический")
+                    InfoCard(mainText = "Факультет физического воспитания и спорта", imgId = R.drawable.sport, navController)
+                    InfoCard(mainText = "Филологический факультет", imgId = R.drawable.phil, navController)
+                    InfoCard(mainText = "Психолого-педагогический факультет", imgId = R.drawable.psychp, navController)
                 }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Card(
-                    modifier = Modifier.size(100.dp, 150.dp),
-                    elevation = CardDefaults.cardElevation(10.dp)
+            }else{
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.univer2),
-                        contentDescription = ""
-                    )
-                    Text(text = "физико-математический")
-                }
-                Card(
-                    modifier = Modifier.size(100.dp, 150.dp),
-                    elevation = CardDefaults.cardElevation(10.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.univer2),
-                        contentDescription = ""
-                    )
-                    Text(text = "физико-математический")
-                }
-                Card(
-                    modifier = Modifier.size(100.dp, 150.dp),
-                    elevation = CardDefaults.cardElevation(10.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.univer2),
-                        contentDescription = ""
-                    )
-                    Text(text = "физико-математический")
+                    InfoCard(mainText = "БРСМ", imgId = R.drawable.brsm, navController)
+                    InfoCard(mainText = "Студенческий профсоюз", imgId = R.drawable.studsoviet, navController)
+                    InfoCard(mainText = "Студенческий совет", imgId = R.drawable.studsoviet, navController)
                 }
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Card(
-                    modifier = Modifier.size(100.dp, 150.dp),
-                    elevation = CardDefaults.cardElevation(10.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.univer2),
-                        contentDescription = ""
-                    )
-                    Text(text = "физико-математический")
-                }
-                Card(
-                    modifier = Modifier.size(100.dp, 150.dp),
-                    elevation = CardDefaults.cardElevation(10.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.univer2),
-                        contentDescription = ""
-                    )
-                    Text(text = "физико-математический")
-                }
-                Card(
-                    modifier = Modifier.size(100.dp, 150.dp),
-                    elevation = CardDefaults.cardElevation(10.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.univer2),
-                        contentDescription = ""
-                    )
-                    Text(text = "физико-математический")
-                }
-            }
+
         }
     }
 }
