@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Bundle
+import android.provider.Settings.Global.getString
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -60,6 +61,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -100,7 +102,7 @@ class MainActivity : ComponentActivity() {
                     StructureActivity(navController = navController)
                 }
                 composable(
-                    route = "topics/?title={title}&mainText={mainText}&resource={resource}",
+                    route = "topics/?title={title}&mainText={mainText}&img={img}&resource={resource}",
                     arguments = listOf(
                         navArgument("title"){
                             type = NavType.StringType
@@ -110,19 +112,26 @@ class MainActivity : ComponentActivity() {
                             type = NavType.StringType
                             defaultValue = "Text"
                         },
+                        navArgument("img"){
+                            type = NavType.IntType
+                            defaultValue = R.drawable.university
+                        },
                         navArgument("resource"){
                             type = NavType.StringType
                             defaultValue = "home"
                         }
                     )
                 ){backStackEntry ->
-                    TopicsActivity(
-                        navController = navController,
-                        title = backStackEntry.arguments?.getString("title").toString(),
-                        mainText = backStackEntry.arguments?.getString("mainText").toString(),
-                        header = backStackEntry.arguments?.getString("title").toString(),
-                        resource = backStackEntry.arguments?.getString("resource").toString()
-                    )
+                    backStackEntry.arguments?.getInt("img")?.let {
+                        TopicsActivity(
+                            navController = navController,
+                            title = backStackEntry.arguments?.getString("title").toString(),
+                            mainText = backStackEntry.arguments?.getString("mainText").toString(),
+                            header = backStackEntry.arguments?.getString("title").toString(),
+                            imgId = it,
+                            resource = backStackEntry.arguments?.getString("resource").toString()
+                        )
+                    }
                 }
             }
 
@@ -139,7 +148,7 @@ fun ScrollingContent(navController: NavController){
             .padding(top = 50.dp, bottom = 80.dp),
         verticalArrangement = Arrangement.SpaceBetween
         ) {
-        UniversityInfo(navController, "title", "text")
+        UniversityInfo(navController, "Общие сведения", stringResource(id = R.string.university))
         UniversityEvents(navController)
         StudentsSales(navController)
         UniversityNews(navController)
@@ -153,14 +162,14 @@ fun UniversityNews(navController: NavController){
         modifier = Modifier.padding(10.dp)
     ){
         Text(text = "Новости Университета", fontSize = 20.sp)
-        NewsListItem(topic = "Something", navController, text = "TextText")
-        NewsListItem(topic = "Something", navController, text = "TextText")
+        NewsListItem(topic = "Информационная встреча с прокурором города Бреста Андреем Чеславовичем Володько", navController, text = stringResource(id = R.string.news1), R.drawable.news1)
+        NewsListItem(topic = "Путешествие в историю", navController, text = stringResource(R.string.news2), R.drawable.news2)
     }
 }
 
 @ExperimentalMaterial3Api
 @Composable
-fun NewsListItem(topic: String, navController: NavController, text: String){
+fun NewsListItem(topic: String, navController: NavController, text: String, imgId: Int){
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,7 +179,7 @@ fun NewsListItem(topic: String, navController: NavController, text: String){
             defaultElevation = 10.dp
         ),
         onClick = {
-            navController.navigate("topics/?title=$topic&mainText=&resource=home")
+            navController.navigate("topics/?title=$topic&mainText=$text&img=$imgId&resource=home")
         }
     ) {
         Box {
@@ -179,7 +188,7 @@ fun NewsListItem(topic: String, navController: NavController, text: String){
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.university),
+                    painter = painterResource(id = imgId),
                     contentDescription = "uni",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -190,10 +199,18 @@ fun NewsListItem(topic: String, navController: NavController, text: String){
                 Column(
                     modifier = Modifier.padding(10.dp)
                 ) {
-                    Text(text = topic, fontSize = 20.sp)
+                    Text(text = shortening(topic), fontSize = 20.sp)
                 }
             }
         }
+    }
+}
+
+fun shortening(str: String): String{
+    return if (str.length > 32){
+        str.substring(0, 32) + "..."
+    }else{
+        str
     }
 }
 
@@ -204,8 +221,12 @@ fun UniversityEvents(navController: NavController){
         modifier = Modifier.padding(10.dp)
     ){
         Text(text = "События Университета", fontSize = 20.sp)
-        EventsListItem(title = "New", description = "Something", date ="30.13.1999", navController, "text")
-        EventsListItem(title = "New", description = "Something", date ="30.13.1999", navController, "text")
+        EventsListItem(title = "Встреча", description = "Ректор Юрий Петрович Голубев встретился с творческими коллективами университета и их руководителями", date ="30.05.2024", navController, stringResource(
+            id = R.string.meet
+        ), R.drawable.meet)
+        EventsListItem(title = "Конкурс", description = "Итоги конкурса профессионального мастерства «Мастер практических занятий» – 2024", date ="31.05.2024", navController, stringResource(
+            id = R.string.concurs
+        ), R.drawable.concurs)
     }
 }
 
@@ -219,15 +240,19 @@ fun StudentsSales(navController: NavController){
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState())
         ) {
-            SalesListItem(title = "Оптика Prosvet", navController = navController, text = "text")
-            SalesListItem(title = "Burger King", navController = navController, text = "text")
+            SalesListItem(title = "Оптика Prosvet", navController = navController, text = stringResource(
+                id = R.string.prosvet
+            ), R.drawable.logoprosvet_xxl)
+            SalesListItem(title = "Burger King", navController = navController, text = stringResource(
+                id = R.string.bk
+            ), R.drawable.bk)
         }
     }
 }
 
 @ExperimentalMaterial3Api
 @Composable
-fun EventsListItem(title: String, description: String, date: String, navController: NavController, text: String){
+fun EventsListItem(title: String, description: String, date: String, navController: NavController, text: String, imgId: Int){
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -237,7 +262,7 @@ fun EventsListItem(title: String, description: String, date: String, navControll
             defaultElevation = 10.dp
         ),
         onClick = {
-            navController.navigate("topics/?title=$title&mainText=$text&resource=home")
+            navController.navigate("topics/?title=$description&mainText=$text&img=$imgId&resource=home")
         }
     ) {
         Box {
@@ -245,7 +270,7 @@ fun EventsListItem(title: String, description: String, date: String, navControll
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.university),
+                    painter = painterResource(id = imgId),
                     contentDescription = "uni",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.size(68.dp)
@@ -254,7 +279,7 @@ fun EventsListItem(title: String, description: String, date: String, navControll
                     modifier = Modifier.padding(start = 10.dp)
                 ) {
                     Text(text = title, fontSize = 20.sp)
-                    Text(text = description, fontSize = 15.sp)
+                    Text(text = shortening(description), fontSize = 15.sp)
                     Text(text = date, fontSize = 10.sp)
                 }
             }
@@ -264,17 +289,18 @@ fun EventsListItem(title: String, description: String, date: String, navControll
 
 @ExperimentalMaterial3Api
 @Composable
-fun SalesListItem(title: String, navController: NavController, text: String){
+fun SalesListItem(title: String, navController: NavController, text: String, imgId: Int){
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .size(300.dp, 240.dp)
             .padding(10.dp),
         shape = RoundedCornerShape(15.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         ),
         onClick = {
-            navController.navigate("topics/?title=$title&mainText=$text&resource=home")
+            navController.navigate("topics/?title=$title&mainText=$text&img=$imgId&resource=home")
         }
     ) {
         Box {
@@ -283,11 +309,12 @@ fun SalesListItem(title: String, navController: NavController, text: String){
                 horizontalAlignment = Alignment.Start
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.university),
+                    painter = painterResource(id = imgId),
                     contentDescription = "uni",
                     contentScale = ContentScale.FillHeight,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .size(200.dp, 160.dp)
                         .height(150.dp)
                 )
                 Column(
@@ -322,7 +349,7 @@ fun UniversityInfo(navController: NavController, title: String, text: String){
                 contentAlignment = Alignment.BottomCenter
             ){
                 Button(onClick = {
-                    navController.navigate("topics/?title=$title&mainText=$text&resource=home")
+                    navController.navigate("topics/?title=$title&mainText=$text&img=${R.drawable.university}&resource=home")
                 }, colors = ButtonDefaults.buttonColors(
                     Color(35, 141, 158)
                 ), modifier = Modifier.width(300.dp)) {
@@ -558,7 +585,7 @@ fun InfoCard(mainText: String, imgId: Int, navController: NavController){
         modifier = Modifier.size(100.dp, 150.dp),
         elevation = CardDefaults.cardElevation(10.dp),
         onClick = {
-            navController.navigate("topics/?title=$mainText&mainText=text&resource=structure")
+            navController.navigate("topics/?title=$mainText&mainText=text&img=$imgId&resource=structure")
         }
     ) {
         Image(
@@ -570,7 +597,9 @@ fun InfoCard(mainText: String, imgId: Int, navController: NavController){
             painter = painterResource(id = imgId),
             contentDescription = ""
         )
-        Text(modifier = Modifier.padding(1.dp).fillMaxWidth(), text = mainText, style = TextStyle(textAlign = TextAlign.Center))
+        Text(modifier = Modifier
+            .padding(1.dp)
+            .fillMaxWidth(), text = mainText, style = TextStyle(textAlign = TextAlign.Center))
     }
 }
 
@@ -647,20 +676,29 @@ fun StructureItem(navController: NavController){
 }
 
 @Composable
-fun ShowTopics(title: String, mainText: String){
+fun ShowTopics(title: String, mainText: String, imgId: Int){
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp, top = 55.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(top = 55.dp)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.univer2),
+            painter = painterResource(id = imgId),
             contentDescription = "image topic",
             modifier = Modifier
+                .fillMaxWidth()
+                .size(260.dp, 240.dp)
                 .padding(bottom = 10.dp)
                 .clip(RoundedCornerShape(15.dp)))
-        Text(text = title, style = TextStyle(fontSize = 25.sp, fontWeight = FontWeight.Bold))
-        Text(text = mainText, style = TextStyle(fontSize = 20.sp))
+        Column (
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 80.dp)
+        ){
+            Text(text = title, style = TextStyle(fontSize = 25.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Justify))
+            Text(text = mainText, style = TextStyle(fontSize = 20.sp, textAlign = TextAlign.Justify))
+        }
     }
 }
 
@@ -668,7 +706,7 @@ fun ShowTopics(title: String, mainText: String){
 @ExperimentalMaterial3Api
 @Composable
 fun TopicsActivity(navController: NavController, title: String,
-                   mainText: String, header: String,
+                   mainText: String, header: String, imgId: Int,
                    resource: String){
     Scaffold (
         topBar = {
@@ -716,6 +754,6 @@ fun TopicsActivity(navController: NavController, title: String,
             )
         }
     ){
-        ShowTopics(title = title, mainText = mainText)
+        ShowTopics(title = title, mainText = mainText, imgId)
     }
 }
